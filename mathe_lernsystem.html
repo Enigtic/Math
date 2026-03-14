@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathematik Lernsystem — Abitur 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,800;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & BASE ─────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:          #0c0c10;
+    --bg2:         #13131a;
+    --bg3:         #1a1a24;
+    --bg4:         #22222f;
+    --line:        #2a2a3d;
+    --line2:       #353550;
+
+    --text:        #e8e8f0;
+    --text2:       #9090b8;
+    --text3:       #5a5a80;
+
+    --blue:        #4f8ef7;
+    --blue-d:      #1a4a9e;
+    --blue-bg:     #0d1f3c;
+
+    --sky:         #38bdf8;
+    --sky-d:       #0369a1;
+    --sky-bg:      #071e2e;
+
+    --purple:      #a78bfa;
+    --purple-d:    #5b21b6;
+    --purple-bg:   #160d2e;
+
+    --green:       #4ade80;
+    --green-d:     #166534;
+    --green-bg:    #0a1f14;
+
+    --gold:        #fbbf24;
+    --gold-bg:     #1c1608;
+
+    --red:         #f87171;
+
+    --radius:      10px;
+    --radius-lg:   16px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── SCROLLBAR ────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
+
+  /* ── LAYOUT ───────────────────────────────────────────────────────────── */
+  .app { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ──────────────────────────────────────────────────────────── */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-header {
+    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sidebar-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--text3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .sidebar-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  /* overall progress */
+  .sidebar-progress {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .prog-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .prog-bar-wrap {
+    background: var(--bg4);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .prog-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--purple), var(--blue));
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* subject nav */
+  .sidebar-nav { padding: 12px 0; flex: 1; }
+
+  .nav-subject {
+    padding: 0 12px;
+    margin-bottom: 4px;
+  }
+
+  .nav-subject-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    transition: background 0.15s;
+    color: var(--text2);
+  }
+
+  .nav-subject-btn:hover { background: var(--bg3); color: var(--text); }
+  .nav-subject-btn.active { background: var(--bg4); color: var(--text); }
+
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .nav-subject-name {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .nav-pct {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .nav-mini-bar {
+    width: 100%;
+    height: 2px;
+    background: var(--bg4);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+
+  .nav-mini-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s;
+  }
+
+  /* section links inside nav */
+  .nav-sections {
+    display: none;
+    padding: 4px 0 4px 30px;
+  }
+
+  .nav-subject.active .nav-sections { display: block; }
+
+  .nav-sec-link {
+    display: block;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text3);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-sec-link:hover { color: var(--text); background: var(--bg3); }
+
+  /* reset btn */
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  .reset-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid var(--line2);
+    color: var(--text3);
+    padding: 8px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    transition: all 0.15s;
+  }
+
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── MAIN ─────────────────────────────────────────────────────────────── */
+  .main {
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 900px;
+  }
+
+  /* ── SUBJECT BLOCK ────────────────────────────────────────────────────── */
+  .subject-block { margin-bottom: 80px; }
+
+  .subject-hero {
+    padding: 32px 36px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .subject-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(255,255,255,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .subject-num {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+
+  .subject-name {
+    font-family: 'Fraunces', serif;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .subject-subtitle {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-bottom: 20px;
+  }
+
+  .subject-refs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .ref-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .subject-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .subject-prog-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .subject-prog-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.5);
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .subject-pct {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    min-width: 52px;
+    text-align: right;
+  }
+
+  .subject-count {
+    font-size: 11px;
+    opacity: 0.65;
+    min-width: 60px;
+  }
+
+  /* ── SECTION ──────────────────────────────────────────────────────────── */
+  .section-block {
+    margin-bottom: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--bg2);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .section-header:hover { background: var(--bg3); }
+
+  .section-toggle {
+    font-size: 10px;
+    color: var(--text3);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+
+  .section-toggle.open { transform: rotate(90deg); }
+
+  .section-accent-bar {
+    width: 3px;
+    height: 22px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .section-title-wrap { flex: 1 }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .section-meta {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  .section-prog {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .sec-mini-bar {
+    width: 60px;
+    height: 4px;
+    background: var(--bg4);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .sec-mini-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s;
+  }
+
+  .sec-count {
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* section body */
+  .section-body {
+    display: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .section-body.open { display: block; }
+
+  /* ── CHECK ITEM ───────────────────────────────────────────────────────── */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.1s;
+    position: relative;
+  }
+
+  .check-item:last-child { border-bottom: none; }
+  .check-item:hover { background: var(--bg3); }
+  .check-item.done { background: rgba(74,222,128,0.03); }
+
+  .check-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 2px solid var(--line2);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    background: transparent;
+  }
+
+  .check-item.done .check-box {
+    border-color: var(--green);
+    background: var(--green);
+  }
+
+  .check-tick {
+    opacity: 0;
+    transform: scale(0) rotate(-15deg);
+    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    font-size: 11px;
+    color: #0a1f14;
+    font-weight: 700;
+  }
+
+  .check-item.done .check-tick {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  .check-content { flex: 1; min-width: 0; }
+
+  .check-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    transition: color 0.2s, opacity 0.2s;
+  }
+
+  .check-item.done .check-text {
+    color: var(--text3);
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .check-ref {
+    font-size: 11px;
+    color: var(--gold);
+    margin-top: 3px;
+    opacity: 0.8;
+  }
+
+  .check-item.done .check-ref { opacity: 0.4; }
+
+  /* ── TOAST ────────────────────────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--bg3);
+    border: 1px solid var(--line2);
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--text);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 999;
+    pointer-events: none;
+    max-width: 280px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── MODAL (reset confirm) ────────────────────────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--line2);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    max-width: 360px;
+    width: 90%;
+  }
+
+  .modal h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .modal p {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .modal-btns { display: flex; gap: 10px; }
+
+  .modal-btns button {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line2);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel { background: none; color: var(--text2); }
+  .btn-cancel:hover { background: var(--bg3); color: var(--text); }
+  .btn-confirm { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn-confirm:hover { opacity: 0.85; }
+
+  /* ── COMPLETED BANNER ─────────────────────────────────────────────────── */
+  .completed-banner {
+    display: none;
+    margin-bottom: 16px;
+    padding: 14px 20px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-d);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--green);
+    align-items: center;
+    gap: 10px;
+  }
+
+  .completed-banner.show { display: flex; }
+
+  /* ── MISC ─────────────────────────────────────────────────────────────── */
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 220px; }
+    .main { padding: 24px 20px; }
+    .subject-name { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Operation Self</div>
+      <div class="sidebar-title">Mathematik<br>Lernsystem</div>
+      <div class="sidebar-sub">Abitur 2026 · Hamburg</div>
+    </div>
+
+    <div class="sidebar-progress">
+      <div class="prog-label">
+        <span>Gesamtfortschritt</span>
+        <span id="total-pct">0%</span>
+      </div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-fill" id="total-bar" style="width:0%"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="total-count">0 / 0 Themen</div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <!-- generated by JS -->
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="reset-btn" onclick="confirmReset()">⚠ Fortschritt zurücksetzen</button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ────────────────────────────────────────────────────────────── -->
+  <main class="main" id="main-content">
+    <!-- generated by JS -->
+  </main>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Reset Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Fortschritt zurücksetzen?</h3>
+    <p>Alle Häkchen werden gelöscht. Das kann nicht rückgängig gemacht werden.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Abbrechen</button>
+      <button class="btn-confirm" onclick="doReset()">Zurücksetzen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════════════════
+
+const SUBJECTS = [
+  {
+    id: "analysis1",
+    num: "Fach 01",
+    title: "Analysis I",
+    subtitle: "Ganzrationale Funktionen · Ableitungen · Extremwertprobleme",
+    color: "#4f8ef7",
+    bgColor: "#0d1f3c",
+    bookRef: "Arbeitsbuch Analysis I (Klett)",
+    formelRef: "Tafelwerk S. 63–65 · Sicher im Abi S. 56–93",
+    sections: [
+      {
+        id: "a1-s0",
+        title: "1.0 · Grundlagen — Voraussetzungen",
+        items: [
+          { text: "Terme vereinfachen & zusammenfassen", ref: "Analysis I, S. 4" },
+          { text: "Ausklammern — Rechnen mit Klammern", ref: "Analysis I, S. 4" },
+          { text: "Ausmultiplizieren — Rechnen mit Klammern", ref: "Analysis I, S. 5" },
+          { text: "Binomische Formeln anwenden: (a±b)² und (a+b)(a-b)", ref: "Analysis I, S. 6" },
+          { text: "Potenzregel verstehen und anwenden", ref: "Analysis I, S. 7" },
+          { text: "Potenzen mit negativen Hochzahlen: x⁻ⁿ = 1/xⁿ", ref: "Analysis I, S. 8" },
+          { text: "Potenzen mit gebrochenen Hochzahlen: x^(1/n) = ⁿ√x", ref: "Analysis I, S. 8" },
+          { text: "Gleichungen durch Äquivalenzumformungen lösen", ref: "Analysis I, S. 9" },
+          { text: "Quadratische Gleichungen — pq-Formel: x = -p/2 ± √((p/2)²-q)", ref: "Analysis I, S. 9" },
+          { text: "Quadratische Gleichungen — abc-Formel (Mitternachtsformel)", ref: "Analysis I, S. 10" },
+          { text: "Einfache Bruchgleichungen lösen", ref: "Analysis I, S. 11" },
+          { text: "Schnittpunkte von Funktionen f(x)=g(x) bestimmen", ref: "Analysis I, S. 12" },
+          { text: "Gleichungen mit Parametern lösen", ref: "Analysis I, S. 12" },
+          { text: "LGS mit dem Additionsverfahren lösen", ref: "Analysis I, S. 13" },
+          { text: "Lineare Funktionen zeichnen und aus Graphen bestimmen", ref: "Analysis I, S. 14–16" },
+          { text: "Graphen der Grundfunktionen zeichnen und untersuchen (x², x³, √x, 1/x)", ref: "Analysis I, S. 16" },
+        ]
+      },
+      {
+        id: "a1-s1",
+        title: "1.1 · Funktionen & ihre Graphen",
+        items: [
+          { text: "Zusammenhang zwischen Funktionsterm und Graph darstellen und erklären", ref: "S. 18 · Sicher S. 6–11" },
+          { text: "Verschiebung in y-Richtung: f(x) + t verschiebt den Graphen um t nach oben/unten", ref: "S. 21 · Sicher S. 20" },
+          { text: "Verschiebung in x-Richtung: f(x − s) verschiebt den Graphen um s nach rechts", ref: "S. 21 · Sicher S. 20" },
+          { text: "Streckung in y-Richtung: a·f(x) streckt mit Faktor a in y-Richtung", ref: "S. 24" },
+          { text: "Streckung in x-Richtung: f(b·x) streckt mit Faktor 1/b in x-Richtung", ref: "S. 24" },
+          { text: "Spiegelung an der x-Achse: −f(x)", ref: "S. 26" },
+          { text: "Spiegelung an der y-Achse: f(−x)", ref: "S. 26" },
+          { text: "Verhalten für x → +∞ und x → −∞ untersuchen (Leitterm)", ref: "S. 29 · Tafelwerk S. 62" },
+          { text: "Achsensymmetrie nachweisen: f(−x) = f(x) für alle x", ref: "S. 31" },
+          { text: "Punktsymmetrie nachweisen: f(−x) = −f(x) für alle x", ref: "S. 31" },
+          { text: "Nullstellen ganzrationaler Funktionen durch Ausklammern, pq-Formel, Linearfaktoren", ref: "S. 33" },
+          { text: "Ganzrationale Funktionen mit Linearfaktoren darstellen: f(x) = a(x−x₁)(x−x₂)…", ref: "S. 36 · Sicher S. 15" },
+        ]
+      },
+      {
+        id: "a1-s2",
+        title: "1.2 · Ableitungsregeln",
+        items: [
+          { text: "Potenzregel: f(x) = xⁿ  →  f'(x) = n·xⁿ⁻¹", ref: "S. 39 · Tafelwerk S. 63" },
+          { text: "Faktorregel: [c·f(x)]' = c·f'(x)", ref: "S. 41 · Sicher S. 60" },
+          { text: "Summenregel: [f(x) + g(x)]' = f'(x) + g'(x)", ref: "S. 41 · Sicher S. 60" },
+          { text: "Monotonie untersuchen: f'(x) > 0 → steigend, f'(x) < 0 → fallend", ref: "S. 43 · Sicher S. 70" },
+          { text: "Notwendige Bedingung für Extremstellen: f'(x₀) = 0", ref: "S. 45 · Sicher S. 75" },
+          { text: "Hinreichende Bedingung (VZW-Kriterium): Vorzeichenwechsel von f' prüfen", ref: "S. 45 · Sicher S. 75" },
+          { text: "Hinreichende Bedingung (2. Ableitung): f'(x₀)=0 und f''(x₀)≠0", ref: "S. 45 · Sicher S. 75" },
+          { text: "Krümmungsverhalten: f''(x) > 0 → Linkskrümmung (Schüssel), f''(x) < 0 → Rechtskrümmung", ref: "S. 47 · Sicher S. 73" },
+          { text: "Notwendige Bedingung für Wendestellen: f''(x₀) = 0", ref: "S. 49 · Sicher S. 79" },
+          { text: "Hinreichende Bedingung für Wendestellen: Vorzeichenwechsel von f'' prüfen", ref: "S. 49 · Sicher S. 79" },
+          { text: "Sattelpunkt: f'(x₀) = 0 und f''(x₀) = 0 und f'''(x₀) ≠ 0", ref: "S. 49 · Sicher S. 79" },
+          { text: "Vollständige Kurvendiskussion: Def.-bereich, Nullstellen, Extrema, Wendepunkte, Symmetrie, Asymptoten", ref: "S. 51 · Sicher S. 65" },
+          { text: "Graph von f → Graph von f' skizzieren (Nullstellen von f' bei Extrema von f)", ref: "S. 54 · Sicher S. 85" },
+        ]
+      },
+      {
+        id: "a1-s3",
+        title: "1.3 · Funktionenscharen & Parameter",
+        items: [
+          { text: "Punkte in Abhängigkeit von Parametern bestimmen (Parameter einsetzen, Bedingungen aufstellen)", ref: "S. 58" },
+          { text: "Funktionenschar untersuchen: Extrema, Nullstellen in Abhängigkeit von t oder a", ref: "S. 60 · Sicher S. 23" },
+          { text: "Ortskurve: Koordinaten der charakteristischen Punkte als Funktion des Parameters ausdrücken und eliminieren", ref: "S. 63" },
+          { text: "Gemeinsame Punkte von Funktionenscharen finden: f_a(x) = f_b(x) für alle Parameter lösen", ref: "S. 66" },
+          { text: "Parameter einer Funktionenschar aus gegebenen Bedingungen bestimmen", ref: "S. 68" },
+          { text: "LGS lösen (3 Unbekannte, 3 Gleichungen — für Polynombestimmung)", ref: "S. 70" },
+          { text: "Ganzrationale Funktion aus Bedingungen bestimmen (Wertetabelle, Ableitungsbedingungen)", ref: "S. 73 · Sicher S. 26" },
+        ]
+      },
+      {
+        id: "a1-s4",
+        title: "1.4 · Erweiterte Ableitungsregeln & Gebrochenrationale Funktionen",
+        items: [
+          { text: "Negative Hochzahlen ableiten: f(x) = x⁻ⁿ  →  f'(x) = −n·x⁻ⁿ⁻¹", ref: "S. 77" },
+          { text: "Gebrochene Hochzahlen ableiten: f(x) = x^(p/q)  →  f'(x) = (p/q)·x^(p/q−1)", ref: "S. 77" },
+          { text: "Verkettung von Funktionen verstehen: f(g(x)) — innere und äußere Funktion identifizieren", ref: "S. 79" },
+          { text: "Kettenregel: [f(g(x))]' = f'(g(x)) · g'(x)", ref: "S. 81 · Sicher S. 62" },
+          { text: "Produktregel: [u(x)·v(x)]' = u'(x)·v(x) + u(x)·v'(x)", ref: "S. 83 · Sicher S. 63" },
+          { text: "Quotientenregel: [u/v]' = (u'v − uv') / v²", ref: "S. 91" },
+          { text: "Definitionslücken (Polstellen) gebrochenrationaler Funktionen bestimmen: Nenner = 0", ref: "S. 85 · Sicher S. 18" },
+          { text: "Senkrechte Asymptoten bestimmen: Polstellen ohne Lücken", ref: "S. 87 · Sicher S. 18" },
+          { text: "Waagerechte Asymptoten bestimmen: Grad Zähler vs. Nenner vergleichen", ref: "S. 89" },
+          { text: "Gebrochenrationale Funktionen vollständig untersuchen (Kurvendiskussion)", ref: "S. 85 · Sicher S. 18" },
+        ]
+      },
+      {
+        id: "a1-s5",
+        title: "1.5 · Tangenten",
+        items: [
+          { text: "Tangente in einem Punkt P(x₀|f(x₀)) aufstellen: t(x) = f'(x₀)·(x−x₀) + f(x₀)", ref: "S. 96 · Sicher S. 65" },
+          { text: "Tangente mit gegebenem Anstieg m: f'(x₀) = m → x₀ berechnen, dann Gerade aufstellen", ref: "S. 96 · Sicher S. 65" },
+          { text: "Tangente von einem Punkt P außerhalb des Graphen: Berührbedingung aufstellen und lösen", ref: "S. 98" },
+          { text: "Normale zu einer Tangente bestimmen: m_n = −1/m_t", ref: "Sicher S. 68" },
+        ]
+      },
+      {
+        id: "a1-s6",
+        title: "1.6 · Extremwertprobleme",
+        items: [
+          { text: "Maximum/Minimum der Differenz zweier Funktionen: h(x) = f(x)−g(x), dann h'(x)=0", ref: "S. 101 · Sicher S. 90" },
+          { text: "Kürzesten Abstand eines Punktes P vom Graphen: d(x) = √[(x−xₚ)²+(f(x)−yₚ)²], d²(x) optimieren", ref: "S. 103" },
+          { text: "Geometrische Figuren in Graphen optimieren: Zielfunktion aufstellen, Nebenbedingung einsetzen, ableiten", ref: "S. 106 · Sicher S. 90" },
+        ]
+      },
+    ]
+  },
+  {
+    id: "analysis2",
+    num: "Fach 02",
+    title: "Analysis II",
+    subtitle: "Exponential- · Integral- · Trigonometrische Funktionen",
+    color: "#38bdf8",
+    bgColor: "#071e2e",
+    bookRef: "Arbeitsbuch Analysis II (Klett)",
+    formelRef: "Tafelwerk S. 25, 67–71 · Sicher S. 32–115",
+    sections: [
+      {
+        id: "a2-s0",
+        title: "2.0 · Grundlagen",
+        items: [
+          { text: "Exponentialgleichungen mit dem Logarithmus lösen: aˣ = b → x = log_a(b) = ln(b)/ln(a)", ref: "Analysis II, S. 5 · Tafelwerk S. 25" },
+          { text: "Binomische Formeln in Exponentialtermen erkennen und anwenden", ref: "Analysis II, S. 6" },
+          { text: "Kettenregel wiederholen: [f(g(x))]' = f'(g(x))·g'(x)", ref: "Analysis II, S. 11" },
+          { text: "Produktregel wiederholen: [u·v]' = u'v + uv'", ref: "Analysis II, S. 12" },
+          { text: "Tangente in einem Punkt des Graphen aufstellen (Wiederholung)", ref: "Analysis II, S. 13" },
+          { text: "Sinus und Kosinus im rechtwinkligen Dreieck: sin = Gegenkathete/Hypotenuse, cos = Ankathete/Hypotenuse", ref: "Analysis II, S. 15 · Tafelwerk S. 26–27" },
+        ]
+      },
+      {
+        id: "a2-s1",
+        title: "2.1 · Exponentialfunktionen & Logarithmus",
+        items: [
+          { text: "Natürliche Exponentialfunktion: f(x) = eˣ  →  f'(x) = eˣ (einzige Funktion = ihre eigene Ableitung)", ref: "S. 16 · Sicher S. 32" },
+          { text: "Exponentialfunktionen mit Kettenregel ableiten: f(x) = e^(g(x)) → f'(x) = e^(g(x))·g'(x)", ref: "S. 16 · Sicher S. 32" },
+          { text: "Einfache Exponentialgleichungen lösen: e^x = c → x = ln(c)", ref: "S. 18" },
+          { text: "Exponentialgleichungen mit mehreren e-Termen lösen (Substitution: u = eˣ)", ref: "S. 20" },
+          { text: "Verhalten für x → +∞ und x → −∞ bei Exponentialfunktionen bestimmen", ref: "S. 22" },
+          { text: "Extrempunkte von Exponentialfunktionen bestimmen (Produktregel oder Kettenregel nötig)", ref: "S. 25" },
+          { text: "Wendepunkte von Exponentialfunktionen bestimmen (f''=0, VZW prüfen)", ref: "S. 25" },
+          { text: "Exponentialfunktionen mit Parameter t untersuchen: f_t(x) = t·e^(−x) o.ä.", ref: "S. 28 · Sicher S. 32" },
+          { text: "Natürliche Logarithmusfunktion: f(x) = ln(x), Definitionsbereich x > 0, f'(x) = 1/x", ref: "S. 31 · Sicher S. 37" },
+          { text: "Logarithmusfunktionen ableiten mit Kettenregel: [ln(g(x))]' = g'(x)/g(x)", ref: "S. 31 · Sicher S. 37" },
+          { text: "Wachstumsprozesse modellieren: N(t) = N₀ · eᵏᵗ (exponentielles Wachstum/Zerfall)", ref: "Sicher S. 39 · Tafelwerk S. 25" },
+          { text: "Halbwertszeit und Verdopplungszeit aus dem Modell berechnen", ref: "Sicher S. 39 · Tafelwerk S. 25" },
+        ]
+      },
+      {
+        id: "a2-s2",
+        title: "2.2 · Integralrechnung",
+        items: [
+          { text: "Begriff der Stammfunktion verstehen: F'(x) = f(x)", ref: "S. 35 · Sicher S. 96 · Tafelwerk S. 67" },
+          { text: "Potenzregel rückwärts (Integrationsregel): ∫xⁿ dx = xⁿ⁺¹/(n+1) + C  (n ≠ −1)", ref: "S. 35 · Tafelwerk S. 67" },
+          { text: "Faktorregel für Integrale: ∫c·f(x) dx = c·∫f(x) dx", ref: "S. 35 · Tafelwerk S. 67" },
+          { text: "Summenregel für Integrale: ∫[f(x)+g(x)] dx = ∫f(x) dx + ∫g(x) dx", ref: "S. 35 · Tafelwerk S. 67" },
+          { text: "Stammfunktion von eˣ: ∫eˣ dx = eˣ + C", ref: "S. 35 · Tafelwerk S. 67" },
+          { text: "Stammfunktion von e^(ax+b): ∫e^(ax+b) dx = (1/a)·e^(ax+b) + C", ref: "S. 35 · Tafelwerk S. 67" },
+          { text: "Stammfunktion von 1/x: ∫(1/x) dx = ln|x| + C", ref: "S. 35 · Tafelwerk S. 67" },
+          { text: "Stammfunktion aus gegebenen Eigenschaften aufstellen (z.B. F(0)=2)", ref: "S. 37 · Sicher S. 108" },
+          { text: "Vom f-Graphen auf Stammfunktion-Graph schließen: Nullstellen von f → Extrema von F", ref: "S. 39 · Sicher S. 108" },
+          { text: "Hauptsatz der Differential- und Integralrechnung: ∫[a→b] f(x) dx = F(b) − F(a)", ref: "S. 43 · Sicher S. 102 · Tafelwerk S. 67" },
+          { text: "Bestimmte Integrale berechnen (Einsetzen der Grenzen)", ref: "S. 43 · Sicher S. 102" },
+          { text: "Integralfunktionen bestimmen: I(x) = ∫[a→x] f(t) dt", ref: "S. 45 · Sicher S. 108" },
+          { text: "Fläche zwischen Funktion und x-Achse: Vorzeichen beachten! Nullstellen bestimmen, Abschnitte integrieren", ref: "S. 47 · Sicher S. 105" },
+          { text: "Fläche zwischen zwei Funktionsgraphen: ∫[a→b] |f(x)−g(x)| dx", ref: "S. 50 · Sicher S. 105" },
+          { text: "Mittelwert einer Funktion: f̄ = (1/(b−a)) · ∫[a→b] f(x) dx", ref: "S. 53" },
+          { text: "Unbegrenzte Flächen untersuchen: uneigentliche Integrale als Grenzwert berechnen", ref: "S. 55" },
+          { text: "Rotationsvolumen berechnen: V = π · ∫[a→b] [f(x)]² dx", ref: "S. 58 · Tafelwerk S. 70" },
+        ]
+      },
+      {
+        id: "a2-s3",
+        title: "2.3 · Trigonometrische Funktionen",
+        items: [
+          { text: "Sinus und Kosinus als Graphen skizzieren — Periode 2π, Amplitude 1", ref: "S. 62 · Tafelwerk S. 26" },
+          { text: "Wichtige Werte auswendig: sin(0)=0, sin(π/6)=1/2, sin(π/4)=√2/2, sin(π/3)=√3/2, sin(π/2)=1", ref: "S. 62 · Tafelwerk S. 27" },
+          { text: "Bogenmaß: Grad → Bogenmaß: x = α·π/180", ref: "S. 65" },
+          { text: "Einfache trigonometrische Gleichungen lösen: sin(x) = c → x = arcsin(c) + 2kπ oder π−arcsin(c)+2kπ", ref: "S. 65" },
+          { text: "f(x) = a·sin(x−c)+d untersuchen: Amplitude |a|, Mittellinie d, Phasenverschiebung c", ref: "S. 68 · Sicher S. 29" },
+          { text: "f(x) = a·sin(b·(x−c))+d untersuchen: Periode T = 2π/b, alle Parameter bestimmen", ref: "S. 72" },
+          { text: "Komplexere trigonometrische Gleichungen lösen und alle Lösungen im Intervall angeben", ref: "S. 76" },
+          { text: "Ableitung der Sinusfunktion: [sin(x)]' = cos(x)", ref: "S. 79 · Tafelwerk S. 63" },
+          { text: "Ableitung der Kosinusfunktion: [cos(x)]' = −sin(x)", ref: "S. 79 · Tafelwerk S. 63" },
+          { text: "Stammfunktion der Sinusfunktion: ∫sin(x) dx = −cos(x) + C", ref: "S. 79 · Tafelwerk S. 67" },
+          { text: "Stammfunktion der Kosinusfunktion: ∫cos(x) dx = sin(x) + C", ref: "S. 79 · Tafelwerk S. 67" },
+        ]
+      },
+      {
+        id: "a2-s4",
+        title: "2.4 · Anwendungen in Sachverhalten",
+        items: [
+          { text: "Vom Graphen Aussagen über f machen: Nullstellen, Extrema, Monotonie, Krümmung ablesen", ref: "S. 83" },
+          { text: "Von der Funktionsgleichung Aussagen über den Graphen machen und interpretieren", ref: "S. 86" },
+          { text: "Reale Größen im Querschnitt untersuchen (Flächen- und Längenberechnungen)", ref: "S. 89" },
+          { text: "Abhängigkeiten zweier realer Größen untersuchen und modellieren", ref: "S. 93" },
+          { text: "Maximum/Minimum von Größen in Sachzusammenhängen bestimmen (Extremwertaufgaben mit Kontext)", ref: "S. 98" },
+        ]
+      },
+    ]
+  },
+  {
+    id: "analytgeo",
+    num: "Fach 03",
+    title: "Analytische Geometrie",
+    subtitle: "Schwerpunkt Abitur Aufgabe III.2 ⭐",
+    color: "#a78bfa",
+    bgColor: "#160d2e",
+    bookRef: "Arbeitsbuch Analytische Geometrie (Klett)",
+    formelRef: "Tafelwerk S. 72–80 · Sicher S. 118–165",
+    sections: [
+      {
+        id: "ag-s0",
+        title: "3.0 · Grundlagen",
+        items: [
+          { text: "Punkte in ein 2D/3D-Koordinatensystem einzeichnen", ref: "Analyt. Geo, S. 4" },
+          { text: "Rechengesetze (Distributivgesetz, Kommutativgesetz) wiederholen", ref: "Analyt. Geo, S. 5" },
+          { text: "Lineare Gleichungen durch Äquivalenzumformungen lösen", ref: "Analyt. Geo, S. 5" },
+          { text: "LGS mit dem Additionsverfahren lösen (2×2 und 3×3)", ref: "Analyt. Geo, S. 6" },
+          { text: "LGS mit dem Einsetzungsverfahren lösen", ref: "Analyt. Geo, S. 7" },
+          { text: "Betragsgleichungen lösen: |x| = a → x = a oder x = −a", ref: "Analyt. Geo, S. 8" },
+          { text: "Einfache geometrische Figuren und Körper kennen (Würfel, Quader, Pyramide, Tetraeder)", ref: "Analyt. Geo, S. 8–9 · MSA S. 26–28" },
+          { text: "Brüche multiplizieren und dividieren", ref: "Analyt. Geo, S. 9" },
+        ]
+      },
+      {
+        id: "ag-s1",
+        title: "3.1 · Vektoren",
+        items: [
+          { text: "Punkte P(x|y|z) im 3D-Koordinatensystem darstellen und ablesen", ref: "S. 10 · Sicher S. 118" },
+          { text: "Körper (Würfel, Quader) im 3D-Koordinatensystem zeichnen und Eckpunkte benennen", ref: "S. 10 · Sicher S. 118" },
+          { text: "Vektor als Verschiebungspfeil verstehen: AB⃗ = B − A = (b₁−a₁, b₂−a₂, b₃−a₃)ᵀ", ref: "S. 13 · Sicher S. 120 · Tafelwerk S. 72" },
+          { text: "Ortsvektor: Vektor vom Ursprung zum Punkt P = OP⃗", ref: "S. 13 · Tafelwerk S. 72" },
+          { text: "Betrag (Länge) eines Vektors berechnen: |a⃗| = √(a₁² + a₂² + a₃²)", ref: "S. 16 · Tafelwerk S. 73" },
+          { text: "Einheitsvektor bestimmen: â = a⃗ / |a⃗|", ref: "S. 16 · Tafelwerk S. 73" },
+          { text: "Vektoren addieren: a⃗ + b⃗ = (a₁+b₁, a₂+b₂, a₃+b₃)ᵀ", ref: "S. 18 · Sicher S. 124" },
+          { text: "Vektoren subtrahieren: a⃗ − b⃗ = (a₁−b₁, a₂−b₂, a₃−b₃)ᵀ", ref: "S. 18 · Sicher S. 124" },
+          { text: "Skalar-Vektor-Multiplikation: λ·a⃗ = (λa₁, λa₂, λa₃)ᵀ — Länge skalieren, Richtung ggf. umkehren", ref: "S. 18 · Sicher S. 124" },
+          { text: "Koordinaten von Punkten mithilfe von Linearkombinationen bestimmen", ref: "S. 21" },
+          { text: "Kollinearität von Vektoren prüfen: a⃗ = λ·b⃗ für ein λ ∈ ℝ", ref: "S. 21 · Tafelwerk S. 73" },
+          { text: "Skalarprodukt berechnen: a⃗·b⃗ = a₁b₁ + a₂b₂ + a₃b₃", ref: "S. 24 · Sicher S. 129 · Tafelwerk S. 74" },
+          { text: "Orthogonalität prüfen: a⃗ ⊥ b⃗ ⟺ a⃗·b⃗ = 0", ref: "S. 24 · Sicher S. 129 · Tafelwerk S. 74" },
+          { text: "Vektorprodukt (Kreuzprodukt) berechnen: a⃗ × b⃗ — ergibt Vektor senkrecht zu beiden", ref: "Sicher S. 132 · Tafelwerk S. 74" },
+          { text: "Mittelpunkt einer Strecke AB berechnen: M = (A + B) / 2 = ½(A⃗+B⃗)", ref: "Tafelwerk S. 75" },
+        ]
+      },
+      {
+        id: "ag-s2",
+        title: "3.2 · Geraden im Raum",
+        items: [
+          { text: "Gerade in Parameterform aufstellen: g: x⃗ = p⃗ + t·u⃗  (p⃗ = Stützvektor, u⃗ = Richtungsvektor)", ref: "S. 28 · Sicher S. 135 · Tafelwerk S. 75" },
+          { text: "Gerade durch zwei Punkte A und B: Richtungsvektor AB⃗ = B−A berechnen", ref: "S. 28 · Sicher S. 135" },
+          { text: "Prüfen ob ein Punkt P auf einer Geraden liegt: Gleichungssystem lösen, auf Widerspruch prüfen", ref: "S. 28" },
+          { text: "Geraden auf Parallelität untersuchen: u⃗₁ = λ·u⃗₂?", ref: "S. 31 · Tafelwerk S. 76" },
+          { text: "Schnittpunkt zweier Geraden bestimmen: Gleichungssystem aufstellen und lösen", ref: "S. 34 · Sicher S. 139" },
+          { text: "Lagebeziehung parallel: u⃗₁ ∥ u⃗₂ und kein gemeinsamer Punkt", ref: "Sicher S. 139 · Tafelwerk S. 76" },
+          { text: "Lagebeziehung identisch: u⃗₁ ∥ u⃗₂ und ein Punkt liegt auf beiden Geraden", ref: "Sicher S. 139 · Tafelwerk S. 76" },
+          { text: "Lagebeziehung schneidend: LGS hat eindeutige Lösung", ref: "Sicher S. 139 · Tafelwerk S. 76" },
+          { text: "Lagebeziehung windschief: LGS hat keine Lösung und Geraden nicht parallel", ref: "Sicher S. 139 · Tafelwerk S. 76" },
+        ]
+      },
+      {
+        id: "ag-s3",
+        title: "3.3 · Ebenen im Raum",
+        items: [
+          { text: "Ebene in Parameterform aufstellen: E: x⃗ = p⃗ + s·u⃗ + t·v⃗  (2 linear unabhängige Richtungsvektoren)", ref: "S. 39 · Sicher S. 142 · Tafelwerk S. 76" },
+          { text: "Normalenvektor n⃗ einer Ebene bestimmen: n⃗ ⊥ u⃗ und n⃗ ⊥ v⃗ (→ Vektorprodukt n⃗ = u⃗ × v⃗)", ref: "S. 42 · Sicher S. 142" },
+          { text: "Ebene in Normalenform: E: n⃗·(x⃗−p⃗) = 0", ref: "S. 42 · Sicher S. 142 · Tafelwerk S. 76" },
+          { text: "Ebene in Koordinatenform: ax₁ + bx₂ + cx₃ = d (Koeffizienten = Normalenvektor)", ref: "S. 42 · Sicher S. 142 · Tafelwerk S. 76" },
+          { text: "Von Parameterform in Koordinatenform umrechnen (Normalenvektor berechnen, d = n⃗·p⃗)", ref: "S. 42 · Sicher S. 142" },
+          { text: "Ebenengleichung mithilfe des Vektorprodukts aus 3 Punkten aufstellen", ref: "S. 45" },
+          { text: "Ebene im Koordinatensystem veranschaulichen: Spurpunkte mit x₁/x₂/x₃-Achse berechnen", ref: "S. 48" },
+        ]
+      },
+      {
+        id: "ag-s4",
+        title: "3.4 · Lagebeziehungen von Ebenen & Geraden",
+        items: [
+          { text: "Gerade ∥ Ebene prüfen: n⃗·u⃗ = 0 und Stützpunkt nicht in Ebene", ref: "S. 53 · Sicher S. 150" },
+          { text: "Gerade liegt in Ebene: n⃗·u⃗ = 0 und Stützpunkt in Ebene", ref: "S. 53 · Sicher S. 150" },
+          { text: "Schnittpunkt Gerade – Ebene: Parameterdarstellung der Geraden in Ebenengleichung einsetzen → t bestimmen", ref: "S. 55 · Sicher S. 150" },
+          { text: "Zwei Ebenen auf Parallelität: Normalenvektoren kollinear? (n⃗₁ = λ·n⃗₂)", ref: "S. 58 · Sicher S. 147" },
+          { text: "Zwei Ebenen identisch: parallel und ein Punkt liegt auf beiden", ref: "S. 58 · Sicher S. 147" },
+          { text: "Schnittgerade zweier Ebenen bestimmen: LGS aus beiden Koordinatenformen lösen", ref: "S. 60 · Sicher S. 149" },
+          { text: "Alle Lagebeziehungen systematisch überblicken und benennen", ref: "Tafelwerk S. 77" },
+        ]
+      },
+      {
+        id: "ag-s5",
+        title: "3.5 · Abstände",
+        items: [
+          { text: "Lotfußpunkt F von Punkt P auf Ebene E: Hilfsgerade durch P mit Richtung n⃗, Schnittpunkt mit E berechnen", ref: "S. 64 · Sicher S. 159" },
+          { text: "Abstand Punkt P von Ebene E — Lotfußpunktmethode: d = |PF⃗|", ref: "S. 64 · Sicher S. 159" },
+          { text: "Abstand Punkt P von Ebene E — Hesse'sche Normalform: d = |n⃗·p⃗ − d| / |n⃗|", ref: "S. 67 · Sicher S. 159 · Tafelwerk S. 78" },
+          { text: "Parallele Ebenen in vorgegebenem Abstand bestimmen: Normalform verschieben", ref: "S. 69" },
+          { text: "Abstand Punkt P von Gerade g: Hilfsgerade durch P ⊥ g, Lotfußpunkt F bestimmen, d = |PF⃗|", ref: "S. 72 · Sicher S. 160" },
+          { text: "Abstand Punkt P von Gerade g — Vektorproduktformel: d = |AP⃗ × u⃗| / |u⃗|", ref: "S. 72 · Sicher S. 160 · Tafelwerk S. 78" },
+          { text: "Abstand windschiefer Geraden — Hilfsebene: Ebene durch g₁ mit n⃗ = u⃗₁ × u⃗₂, dann Abstand von Punkt auf g₂", ref: "S. 75 · Sicher S. 163" },
+          { text: "Abstand windschiefer Geraden — Formel: d = |(A₂−A₁)·(u⃗₁×u⃗₂)| / |u⃗₁×u⃗₂|", ref: "S. 75 · Sicher S. 163" },
+        ]
+      },
+      {
+        id: "ag-s6",
+        title: "3.6 · Winkel · Spiegelung · Symmetrie",
+        items: [
+          { text: "Winkel zwischen zwei Vektoren: cos φ = (a⃗·b⃗) / (|a⃗|·|b⃗|), φ ∈ [0°, 180°]", ref: "S. 79 · Tafelwerk S. 74" },
+          { text: "Schnittwinkel zweier Geraden: Winkel zwischen Richtungsvektoren (spitzen Winkel nehmen)", ref: "S. 81 · Sicher S. 153" },
+          { text: "Schnittwinkel Gerade – Ebene: cos(90°−φ) = |n⃗·u⃗|/(|n⃗|·|u⃗|), also sin φ = |n⃗·u⃗|/(|n⃗|·|u⃗|)", ref: "S. 81 · Sicher S. 153" },
+          { text: "Schnittwinkel zweier Ebenen (Diederwinkel): Winkel zwischen Normalenvektoren", ref: "S. 81 · Sicher S. 154" },
+          { text: "Punkt P an einem Spiegelpunkt Z spiegeln: P' = 2Z − P", ref: "S. 84 · Sicher S. 158" },
+          { text: "Punkt P an einer Ebene E spiegeln: Lotfußpunkt F bestimmen, P' = 2F − P", ref: "S. 84" },
+          { text: "Punkt P an einer Geraden g spiegeln: Lotfußpunkt F auf g bestimmen, P' = 2F − P", ref: "S. 84" },
+          { text: "Symmetrieebene zweier Punkte/Figuren bestimmen: Mittelpunkt und Normalenvektor = Verbindungsvektor", ref: "S. 88" },
+        ]
+      },
+      {
+        id: "ag-s7",
+        title: "3.7 · Anwendungen",
+        items: [
+          { text: "Zeit-Ort-Gleichung für bewegte Objekte: x⃗(t) = x⃗₀ + t·v⃗ aufstellen und interpretieren", ref: "S. 91" },
+          { text: "Kollision zweier Objekte prüfen: Schnittpunkt der Ortsvektoren zur gleichen Zeit t", ref: "S. 95" },
+          { text: "Gegenseitige Lage von Objekten im Raum beschreiben (Gebäude, Flugzeuge, Strahlen)", ref: "S. 95" },
+          { text: "Flächeninhalt eines Dreiecks: A = ½ |AB⃗ × AC⃗|", ref: "S. 98 · Tafelwerk S. 74" },
+          { text: "Flächeninhalt eines Parallelogramms: A = |AB⃗ × AC⃗|", ref: "S. 98 · Tafelwerk S. 74" },
+          { text: "Volumen eines Spats (Parallelepiped): V = |(a⃗ × b⃗)·c⃗| (Spatprodukt)", ref: "S. 98" },
+          { text: "Volumen eines Tetraeders: V = ⅙ |(a⃗ × b⃗)·c⃗|", ref: "S. 98" },
+        ]
+      },
+      {
+        id: "ag-s8",
+        title: "3.8 · Matrizen — Grundlagen",
+        items: [
+          { text: "Matrix als rechteckiges Zahlenschema verstehen: m Zeilen × n Spalten", ref: "S. 101 · Sicher S. 42 · Tafelwerk S. 82" },
+          { text: "Matrizen addieren und subtrahieren: elementweise, nur bei gleicher Dimension", ref: "S. 101 · Sicher S. 45 · Tafelwerk S. 82" },
+          { text: "Matrizen multiplizieren: Zeile × Spalte, Ergebnis (m×n)·(n×p) = (m×p)", ref: "S. 101 · Sicher S. 45 · Tafelwerk S. 83" },
+          { text: "Einheitsmatrix I kennen: A·I = I·A = A", ref: "Sicher S. 42 · Tafelwerk S. 82" },
+          { text: "Inverse Matrix A⁻¹ bestimmen: A·A⁻¹ = I (Gauß-Jordan-Verfahren)", ref: "S. 103 · Tafelwerk S. 83" },
+          { text: "LGS mit Matrizen lösen: A·x⃗ = b⃗ → x⃗ = A⁻¹·b⃗", ref: "Sicher S. 49 · Tafelwerk S. 86" },
+          { text: "Einstufige Übergangsmatrix aufstellen und Zustandsvektoren berechnen", ref: "S. 106 · Sicher S. 51" },
+        ]
+      },
+    ]
+  },
+  {
+    id: "stochastik",
+    num: "Fach 04",
+    title: "Stochastik",
+    subtitle: "Wahrscheinlichkeit · Binomialverteilung · Hypothesentest",
+    color: "#4ade80",
+    bgColor: "#0a1f14",
+    bookRef: "Arbeitsbuch Stochastik (Klett)",
+    formelRef: "Tafelwerk S. 44–58 · Sicher S. 173–203",
+    sections: [
+      {
+        id: "st-s0",
+        title: "4.0 · Grundlagen",
+        items: [
+          { text: "Runden auf n Dezimalstellen und Prozentschreibweise", ref: "Stochastik, S. 4" },
+          { text: "Brüche multiplizieren und dividieren", ref: "Stochastik, S. 5" },
+          { text: "Brüche addieren und subtrahieren (gemeinsamen Nenner finden)", ref: "Stochastik, S. 6" },
+          { text: "Exponentialgleichungen mit dem Logarithmus lösen", ref: "S. 7" },
+          { text: "Absolute Häufigkeit H(A) und relative Häufigkeit h(A) = H(A)/n unterscheiden", ref: "S. 7 · MSA S. 125" },
+          { text: "Zufallsexperiment, Ergebnismenge Ω, Ereignis A als Teilmenge von Ω definieren", ref: "S. 8 · Sicher S. 173" },
+          { text: "Gegenereignis Ā: P(Ā) = 1 − P(A)", ref: "S. 9" },
+          { text: "Schnittmenge A∩B (A und B) und Vereinigung A∪B (A oder B)", ref: "S. 10" },
+          { text: "Säulendiagramme und Stabdiagramme lesen, erstellen und interpretieren", ref: "S. 11" },
+          { text: "Arithmetischen Mittelwert (Durchschnitt) berechnen: x̄ = (x₁+x₂+…+xₙ)/n", ref: "S. 12" },
+        ]
+      },
+      {
+        id: "st-s1",
+        title: "4.1 · Wahrscheinlichkeit",
+        items: [
+          { text: "Laplace-Experiment: alle Ergebnisse gleich wahrscheinlich → P(A) = |A|/|Ω|", ref: "S. 13 · Sicher S. 173 · Tafelwerk S. 45" },
+          { text: "Additionssatz: P(A∪B) = P(A) + P(B) − P(A∩B)", ref: "S. 16 · Tafelwerk S. 47" },
+          { text: "Bei disjunkten Ereignissen (A∩B=∅): P(A∪B) = P(A) + P(B)", ref: "S. 16 · Tafelwerk S. 47" },
+          { text: "Pfadregel (Multiplikation): P(A∩B) = P(A) · P(B|A) — Wahrscheinlichkeiten entlang eines Pfades multiplizieren", ref: "S. 18 · Tafelwerk S. 45" },
+          { text: "Summenregel: P(Ereignis) = Summe aller günstigen Pfade", ref: "S. 18 · Tafelwerk S. 45" },
+          { text: "Baumdiagramm erstellen: Äste beschriften, Pfadwahrscheinlichkeiten berechnen, Probe: alle Endäste summieren zu 1", ref: "S. 22 · Sicher S. 173" },
+          { text: "Mit/ohne Zurücklegen: Wahrscheinlichkeiten ändern sich beim Ziehen ohne Zurücklegen!", ref: "S. 22 · Sicher S. 173" },
+          { text: "Zufallsgröße X definieren: ordnet jedem Ergebnis eine Zahl zu", ref: "S. 26 · Sicher S. 178 · Tafelwerk S. 48" },
+          { text: "Wahrscheinlichkeitsverteilung erstellen: Tabelle mit allen Werten xᵢ und P(X=xᵢ)", ref: "S. 26 · Sicher S. 178 · Tafelwerk S. 48" },
+          { text: "Erwartungswert berechnen: E(X) = Σ xᵢ · P(X=xᵢ)", ref: "S. 26 · Sicher S. 178 · Tafelwerk S. 48" },
+          { text: "Erwartungswert für zusammengesetzte Ergebnisse (z.B. Gewinn bei Spielen) berechnen", ref: "S. 29" },
+          { text: "Fairen Spielbegriff prüfen: Spiel ist fair wenn E(X) = 0", ref: "S. 32" },
+        ]
+      },
+      {
+        id: "st-s2",
+        title: "4.2 · Bedingte Wahrscheinlichkeit",
+        items: [
+          { text: "Bedingte Wahrscheinlichkeit: P(A|B) = P(A∩B) / P(B) — Wahrscheinlichkeit von A, gegeben dass B eingetreten", ref: "S. 36 · Tafelwerk S. 47" },
+          { text: "Bedingung im Baumdiagramm: P(A|B) entspricht dem Pfad nach B→A geteilt durch P(B)", ref: "S. 36 · Tafelwerk S. 47" },
+          { text: "Vierfeldertafel lesen: Zeilen/Spalten = Ereignisse, Zellen = Häufigkeiten oder Wahrscheinlichkeiten", ref: "S. 38" },
+          { text: "Vierfeldertafel aus Angaben vollständig ausfüllen (Zeilensummen, Spaltensummen)", ref: "S. 38" },
+          { text: "Aus Vierfeldertafel → Baumdiagramm erstellen (Reihenfolge der Äste festlegen)", ref: "S. 41" },
+          { text: "Satz der totalen Wahrscheinlichkeit: P(A) = P(A|B)·P(B) + P(A|B̄)·P(B̄)", ref: "S. 44 · Tafelwerk S. 47" },
+          { text: "Satz von Bayes: P(B|A) = P(A|B)·P(B) / P(A) — Ursache aus Wirkung berechnen", ref: "S. 46 · Sicher S. 173" },
+          { text: "Stochastische Unabhängigkeit prüfen: P(A|B) = P(A) oder äquivalent P(A∩B) = P(A)·P(B)", ref: "S. 48" },
+        ]
+      },
+      {
+        id: "st-s3",
+        title: "4.3 · Binomialverteilung",
+        items: [
+          { text: "Bernoulli-Experiment: genau 2 Ausgänge (Treffer/Niete), Wahrscheinlichkeit p konstant", ref: "S. 51 · Sicher S. 186" },
+          { text: "Binomialkoeffizient berechnen: C(n,k) = n! / (k!·(n−k)!) — Anzahl der Möglichkeiten", ref: "S. 51 · Tafelwerk S. 44" },
+          { text: "Bernoulli-Formel: P(X=k) = C(n,k)·pᵏ·(1−p)ⁿ⁻ᵏ  mit X~B(n,p)", ref: "S. 51 · Sicher S. 186 · Tafelwerk S. 48" },
+          { text: "Binomialverteilung B(n,p) als Histogramm darstellen und interpretieren", ref: "S. 53 · Sicher S. 186" },
+          { text: "Kumulierte Wahrscheinlichkeit: P(X≤k) = Σᵢ₌₀ᵏ P(X=i) aus Tabelle (Tafelwerk S. 55)", ref: "S. 55 · Sicher S. 182 · Tafelwerk S. 55" },
+          { text: "P(X≥k) = 1 − P(X≤k−1) berechnen", ref: "S. 55 · Tafelwerk S. 55" },
+          { text: "P(a≤X≤b) = P(X≤b) − P(X≤a−1) berechnen", ref: "S. 55 · Tafelwerk S. 55" },
+          { text: "Erwartungswert der Binomialverteilung: μ = E(X) = n·p", ref: "S. 58 · Sicher S. 194 · Tafelwerk S. 48" },
+          { text: "Standardabweichung der Binomialverteilung: σ = √(n·p·(1−p))", ref: "S. 58 · Sicher S. 194 · Tafelwerk S. 48" },
+          { text: "σ-Umgebung des Erwartungswerts: [μ−σ, μ+σ], [μ−2σ, μ+2σ]", ref: "S. 58 · Sicher S. 194" },
+          { text: "Anzahl n der Versuche aus Bedingung bestimmen: Ungleichung P(X≥1)≥0.99 o.ä. durch Probieren lösen", ref: "S. 61" },
+          { text: "Anzahl n bis zum ersten Treffer: geometrische Verteilung P(X=k) = (1−p)ᵏ⁻¹·p", ref: "S. 63" },
+          { text: "Trefferwahrscheinlichkeit p aus Bedingung bestimmen (Gleichung mit p aufstellen und lösen)", ref: "S. 65" },
+          { text: "Anzahl k der Treffer aus kumulierter Wahrscheinlichkeitsbedingung bestimmen", ref: "S. 67 · Tafelwerk S. 55" },
+        ]
+      },
+      {
+        id: "st-s4",
+        title: "4.4 · Hypothesentest",
+        items: [
+          { text: "Aus relativen Häufigkeiten Prognosen erstellen und als Hypothese formulieren", ref: "S. 70" },
+          { text: "Nullhypothese H₀ und Alternativhypothese H₁ aufstellen (H₀ ist das was getestet wird)", ref: "S. 72 · Sicher S. 197" },
+          { text: "Signifikanzniveau α festlegen (meist α = 0.05 oder α = 0.01)", ref: "S. 72 · Sicher S. 197" },
+          { text: "Linksseitiger Test (H₁: p < p₀): Ablehnbereich links — P(X≤k) ≤ α", ref: "S. 72 · Sicher S. 197" },
+          { text: "Rechtsseitiger Test (H₁: p > p₀): Ablehnbereich rechts — P(X≥k) ≤ α", ref: "S. 75" },
+          { text: "Entscheiden welcher Test: H₁ bestimmt die Seite (< → links, > → rechts, ≠ → zweiseitig)", ref: "S. 78" },
+          { text: "Zweiseitiger Test (H₁: p ≠ p₀): zwei Ablehnbereiche, α aufteilen (je α/2 pro Seite)", ref: "S. 81" },
+          { text: "Ablehnbereich bestimmen: größte/kleinste k suchen, sodass P noch ≤ α", ref: "S. 72 · Sicher S. 197" },
+          { text: "Testentscheidung treffen: Beobachteter Wert im Ablehnbereich → H₀ ablehnen", ref: "S. 72 · Sicher S. 197" },
+          { text: "Fehler 1. Art: H₀ ablehnen obwohl sie wahr ist — Wahrscheinlichkeit = α", ref: "S. 84 · Sicher S. 201" },
+          { text: "Fehler 2. Art: H₀ beibehalten obwohl sie falsch ist — Wahrscheinlichkeit berechnen", ref: "S. 84 · Sicher S. 201" },
+        ]
+      },
+    ]
+  },
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+// STORAGE
+// ════════════════════════════════════════════════════════════════════════════
+
+const STORAGE_KEY = "mathe_abitur_2026";
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function saveState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+let state = loadState();
+
+function isChecked(itemId) { return !!state[itemId]; }
+
+function toggleItem(itemId) {
+  state[itemId] = !state[itemId];
+  if (!state[itemId]) delete state[itemId];
+  saveState(state);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// PROGRESS HELPERS
+// ════════════════════════════════════════════════════════════════════════════
+
+function getSubjectProgress(subject) {
+  let total = 0, done = 0;
+  subject.sections.forEach(sec => {
+    sec.items.forEach((_, i) => {
+      const id = `${sec.id}-${i}`;
+      total++;
+      if (isChecked(id)) done++;
+    });
+  });
+  return { total, done, pct: total ? Math.round((done/total)*100) : 0 };
+}
+
+function getSectionProgress(section) {
+  let total = 0, done = 0;
+  section.items.forEach((_, i) => {
+    const id = `${section.id}-${i}`;
+    total++;
+    if (isChecked(id)) done++;
+  });
+  return { total, done };
+}
+
+function getTotalProgress() {
+  let total = 0, done = 0;
+  SUBJECTS.forEach(s => {
+    const p = getSubjectProgress(s);
+    total += p.total;
+    done += p.done;
+  });
+  return { total, done, pct: total ? Math.round((done/total)*100) : 0 };
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════════════════════
+
+const openSections = new Set();
+
+function renderAll() {
+  renderSidebar();
+  renderMain();
+  updateAllProgress();
+}
+
+function renderSidebar() {
+  const nav = document.getElementById("sidebar-nav");
+  nav.innerHTML = SUBJECTS.map(s => {
+    const prog = getSubjectProgress(s);
+    return `
+    <div class="nav-subject" id="nav-${s.id}">
+      <button class="nav-subject-btn" onclick="scrollToSubject('${s.id}')">
+        <span class="nav-dot" style="background:${s.color}"></span>
+        <span class="nav-subject-name">${s.title}</span>
+        <span class="nav-pct" id="nav-pct-${s.id}">${prog.pct}%</span>
+      </button>
+      <div class="nav-mini-bar">
+        <div class="nav-mini-fill" id="nav-bar-${s.id}" style="background:${s.color};width:${prog.pct}%"></div>
+      </div>
+      <div class="nav-sections">
+        ${s.sections.map(sec => `
+          <span class="nav-sec-link" onclick="scrollToSection('${sec.id}')">${sec.title}</span>
+        `).join("")}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderMain() {
+  const main = document.getElementById("main-content");
+  main.innerHTML = SUBJECTS.map(s => renderSubject(s)).join("");
+}
+
+function renderSubject(s) {
+  const prog = getSubjectProgress(s);
+  return `
+  <div class="subject-block" id="subject-${s.id}">
+    <div class="subject-hero" style="background:${s.bgColor};border:1px solid ${s.color}33;">
+      <div class="subject-num" style="color:${s.color}">${s.num}</div>
+      <div class="subject-name" style="color:${s.color}">${s.title}</div>
+      <div class="subject-subtitle">${s.subtitle}</div>
+      <div class="subject-refs">
+        <span class="ref-chip">📚 ${s.bookRef}</span>
+        <span class="ref-chip" style="color:var(--gold)">📐 ${s.formelRef}</span>
+      </div>
+      <div class="subject-stats">
+        <div class="subject-prog-bar">
+          <div class="subject-prog-fill" id="spf-${s.id}" style="width:${prog.pct}%"></div>
+        </div>
+        <div class="subject-pct" id="spct-${s.id}">${prog.pct}%</div>
+        <div class="subject-count" id="scnt-${s.id}">${prog.done}/${prog.total}</div>
+      </div>
+    </div>
+    ${s.sections.map(sec => renderSection(sec, s.color)).join("")}
+  </div>`;
+}
+
+function renderSection(sec, color) {
+  const prog = getSectionProgress(sec);
+  const isOpen = openSections.has(sec.id);
+  return `
+  <div class="section-block" id="sec-block-${sec.id}">
+    <div class="section-header" onclick="toggleSection('${sec.id}')">
+      <span class="section-toggle ${isOpen?'open':''}">▶</span>
+      <span class="section-accent-bar" style="background:${color}"></span>
+      <div class="section-title-wrap">
+        <div class="section-title">${sec.title}</div>
+        <div class="section-meta">${prog.done} von ${prog.total} abgehakt</div>
+      </div>
+      <div class="section-prog">
+        <div class="sec-mini-bar">
+          <div class="sec-mini-fill" id="smf-${sec.id}" style="background:${color};width:${prog.total?Math.round(prog.done/prog.total*100):0}%"></div>
+        </div>
+        <span class="sec-count" id="scnt2-${sec.id}">${prog.done}/${prog.total}</span>
+      </div>
+    </div>
+    <div class="section-body ${isOpen?'open':''}" id="body-${sec.id}">
+      ${sec.items.map((item, i) => renderItem(item, sec.id, i, color)).join("")}
+    </div>
+  </div>`;
+}
+
+function renderItem(item, secId, idx, color) {
+  const id = `${secId}-${idx}`;
+  const done = isChecked(id);
+  return `
+  <div class="check-item ${done?'done':''}" id="ci-${id}" onclick="handleCheck('${id}','${secId}')">
+    <div class="check-box" style="${done?`border-color:${color};background:${color}`:''} ">
+      <span class="check-tick">✓</span>
+    </div>
+    <div class="check-content">
+      <div class="check-text">${item.text}</div>
+      <div class="check-ref">📄 ${item.ref}</div>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// INTERACTIONS
+// ════════════════════════════════════════════════════════════════════════════
+
+function handleCheck(itemId, secId) {
+  toggleItem(itemId);
+  const done = isChecked(itemId);
+
+  // update item UI
+  const ci = document.getElementById(`ci-${itemId}`);
+  if (!ci) return;
+  ci.classList.toggle("done", done);
+
+  // find the subject colour
+  const secParts = secId.split("-");
+  const subjectId = secParts.slice(0,-1).join("-").replace(/-s\d+$/, '');
+  const subject = SUBJECTS.find(s => s.sections.some(sec => sec.id === secId));
+  const color = subject ? subject.color : "var(--green)";
+
+  const box = ci.querySelector(".check-box");
+  if (done) {
+    box.style.borderColor = color;
+    box.style.background = color;
+  } else {
+    box.style.borderColor = "";
+    box.style.background = "";
+  }
+
+  updateSectionProgress(secId);
+  if (subject) updateSubjectProgress(subject);
+  updateTotalProgress();
+}
+
+function updateSectionProgress(secId) {
+  const section = SUBJECTS.flatMap(s=>s.sections).find(s=>s.id===secId);
+  if (!section) return;
+  const prog = getSectionProgress(section);
+  const el = document.getElementById(`smf-${secId}`);
+  const cnt = document.getElementById(`scnt2-${secId}`);
+  const hdr = document.getElementById(`sec-block-${secId}`)?.querySelector(".section-meta");
+  if (el) el.style.width = `${section.items.length ? Math.round(prog.done/prog.total*100):0}%`;
+  if (cnt) cnt.textContent = `${prog.done}/${prog.total}`;
+  if (hdr) hdr.textContent = `${prog.done} von ${prog.total} abgehakt`;
+}
+
+function updateSubjectProgress(subject) {
+  const prog = getSubjectProgress(subject);
+  const fill = document.getElementById(`spf-${subject.id}`);
+  const pct  = document.getElementById(`spct-${subject.id}`);
+  const cnt  = document.getElementById(`scnt-${subject.id}`);
+  const npct = document.getElementById(`nav-pct-${subject.id}`);
+  const nbar = document.getElementById(`nav-bar-${subject.id}`);
+  if (fill) fill.style.width = `${prog.pct}%`;
+  if (pct)  pct.textContent  = `${prog.pct}%`;
+  if (cnt)  cnt.textContent  = `${prog.done}/${prog.total}`;
+  if (npct) npct.textContent = `${prog.pct}%`;
+  if (nbar) nbar.style.width = `${prog.pct}%`;
+}
+
+function updateTotalProgress() {
+  const prog = getTotalProgress();
+  const bar  = document.getElementById("total-bar");
+  const pct  = document.getElementById("total-pct");
+  const cnt  = document.getElementById("total-count");
+  if (bar) bar.style.width = `${prog.pct}%`;
+  if (pct) pct.textContent = `${prog.pct}%`;
+  if (cnt) cnt.textContent = `${prog.done} / ${prog.total} Themen`;
+}
+
+function updateAllProgress() {
+  updateTotalProgress();
+  SUBJECTS.forEach(s => {
+    updateSubjectProgress(s);
+    s.sections.forEach(sec => updateSectionProgress(sec.id));
+  });
+}
+
+function toggleSection(secId) {
+  const body = document.getElementById(`body-${secId}`);
+  const toggle = document.querySelector(`#sec-block-${secId} .section-toggle`);
+  if (!body) return;
+  const isNowOpen = !openSections.has(secId);
+  if (isNowOpen) {
+    openSections.add(secId);
+    body.classList.add("open");
+    toggle && toggle.classList.add("open");
+  } else {
+    openSections.delete(secId);
+    body.classList.remove("open");
+    toggle && toggle.classList.remove("open");
+  }
+}
+
+function scrollToSubject(subjectId) {
+  const el = document.getElementById(`subject-${subjectId}`);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  // highlight active in sidebar
+  document.querySelectorAll(".nav-subject").forEach(n => n.classList.remove("active"));
+  document.querySelectorAll(".nav-subject-btn").forEach(b => b.classList.remove("active"));
+  const navItem = document.getElementById(`nav-${subjectId}`);
+  if (navItem) {
+    navItem.classList.add("active");
+    navItem.querySelector(".nav-subject-btn").classList.add("active");
+  }
+}
+
+function scrollToSection(secId) {
+  const el = document.getElementById(`sec-block-${secId}`);
+  if (el) {
+    if (!openSections.has(secId)) toggleSection(secId);
+    setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// RESET
+// ════════════════════════════════════════════════════════════════════════════
+
+function confirmReset() {
+  document.getElementById("modal").classList.add("show");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("show");
+}
+
+function doReset() {
+  state = {};
+  saveState(state);
+  closeModal();
+  // Re-render all check items without full page reload
+  document.querySelectorAll(".check-item").forEach(ci => {
+    ci.classList.remove("done");
+    const box = ci.querySelector(".check-box");
+    if (box) { box.style.borderColor=""; box.style.background=""; }
+  });
+  updateAllProgress();
+  showToast("Fortschritt zurückgesetzt ✓");
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════════════════════
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+// Close modal on overlay click
+document.getElementById("modal").addEventListener("click", function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════════════
+
+renderAll();
+</script>
+</body>
+</html>
